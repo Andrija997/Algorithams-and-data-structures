@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#define maximum(a,b) ((a)>(b))? (a) : (b)
 #define MAX 1000
 typedef struct node
 {
@@ -10,19 +11,39 @@ typedef struct node
 } Node ;
 void PUSH(struct node** pok,struct node **stek[], int *top) {
 	if ( *top == MAX)
-		printf("Error, overflow.");
+		printf("Error, overflow.\n");
 	else stek[++*top] = *pok;
 	return;
 }
 struct node * POP( struct node **stek[], int* top) {
 	if (*top < 0)
-		printf("Underflow.");
-	else return stek[(*top)--];
+		printf("Underflow.\n");
+	else 
+		return stek[(*top)--];
 }
 struct node * TOP( struct node **stek[], int top) {
 	if (top < 0)
-		printf("Underflow.");
-	else return stek[top];
+		printf("Underflow.\n");
+	else 
+		return stek[top];
+}
+void pushlvl(int *stack[], int *top, int i) {
+	if (*top == MAX)
+		printf("Overflow. \n");
+	else stack[++*top] = i;
+	return;
+}
+int poplvl(int *stack[], int *top) {
+	if ( *top <0 )
+		printf("Underflow. \n");
+	else 
+		return stack[(*top)--] ;
+}
+void PUSH1(struct node* pok, struct node **stek[], int *top) {
+	if (*top == MAX)
+		printf("Error, overflow.\n");
+	else stek[++*top] = pok;
+	return;
 }
 void base_change(Node** ROOT){
 	char input[255], c, a, k;
@@ -30,9 +51,15 @@ void base_change(Node** ROOT){
 	int top = -1,i;
 	Node *stack[MAX + 1];
 	Node *lp , *rp, *x;
-		printf("Input for  a root question? \t");  //root input
+		printf("Input a root question? \t");  //root input
 		*ROOT = (struct node *)malloc(sizeof(struct node));
-		 fgets((*ROOT)->info, 255, stdin);
+		// fgets((*ROOT)->info, 255, stdin);
+		 while ((a = getchar()) == '\n');
+		 if (a != '\n') { (*ROOT)->info[0] = a; i = 1; }
+		 else i = 0;
+		 while ((a = getchar()) != '\n')
+			 (*ROOT)->info[i++] = a;
+		 (*ROOT)->info[i] = '\0';
 	     //  ROOT = (struct node *)malloc(sizeof(struct node));
 		// strcpy(*ROOT->info, input);
 		PUSH(ROOT, &stack, &top);
@@ -40,33 +67,33 @@ void base_change(Node** ROOT){
 		check0 = 0;
 		while ( top >= 0 ) {
 			printf("Q/A?");
-			c = getchar();
+			   c = getchar();
 			switch (c) {
-			case 'q': case 'Q':  
-				if (check1==1 && check0==0) {	 
-					lp = (struct node *)malloc(sizeof(struct node));//doslo je pitanje, predhodno nije bio odgovor
-					printf("Unesite pitanje: \n");
+		    	case 'q': case 'Q':  
+			    	if (check1==1 && check0==0) {	 
+					  lp = (struct node *)malloc(sizeof(struct node));//doslo je pitanje, predhodno nije bio odgovor
+					    printf("Input the question: \n");
 					while((a = getchar()) =='\n');
 					if (a != '\n') { lp->info[0] = a; i = 1; }
-					else i = 0;
+					  else i = 0;
 					while ((a = getchar()) != '\n')
-						lp->info[i++] = a;
-					lp->info[i] = '\0';
+				    	lp->info[i++] = a;
+					    lp->info[i] = '\0';
 					//fgets(lp->info, 255, stdin);
 					//lp = (struct node *)malloc(sizeof(struct node));
-					x = TOP(&stack, top);
-					x->left = lp;
+					  x = TOP(&stack, top);
+					  x->left = lp;
 					//strcpy(*lp->info, input);
-					PUSH(&lp, &stack, &top);
-					check1 = 1; 
-					check0 = 0;
+				    	PUSH(&lp, &stack, &top);
+					   check1 = 1; 
+					   check0 = 0;
 				}
 				else  {
-					rp = (struct node *)malloc(sizeof(struct node));
-					printf("Unesite pitanje: ");
+					   rp = (struct node *)malloc(sizeof(struct node));
+					   printf("Input the question: ");
 					while ((a = getchar()) == '\n');
-					if (a != '\n') { rp->info[0] = a; i = 1; }
-					else i = 0;
+					  if (a != '\n') { rp->info[0] = a; i = 1; }
+					     else i = 0;
 					while ((a = getchar()) != '\n')
 						rp->info[i++] = a;
 					rp->info[i] = '\0';
@@ -77,27 +104,27 @@ void base_change(Node** ROOT){
 					check0 = 0;
 				}
 				break;
-			case 'a': case 'A':
+		    	case 'a': case 'A':
 				if (check1==1 && check0==0 ) {
 					lp = (struct node *)malloc(sizeof(struct node)); 
-					printf("Unesite odgovor: ");
-					while ((a = getchar()) == '\n');
+					printf("Input the answer: ");
+				while ((a = getchar()) == '\n');
 					if (a != '\n') { lp->info[0] = a; i = 1; }
-					else i = 0;
-					while ((a = getchar()) != '\n')
-						lp->info[i++] = a;
-					lp->info[i] = '\0';
-					x = TOP(&stack, top);
-					x->left = lp;
-					lp->left = lp->right = NULL;
-					check1 = 0;
-					check0 = 1; // prilikom unosa sledeceg pitanja, da zna da unosi u desno podstablo predhodnog na steku
+					   else i = 0;
+				while ((a = getchar()) != '\n')
+				    	lp->info[i++] = a;
+					    lp->info[i] = '\0';
+					    x = TOP(&stack, top);
+				   	    x->left = lp;
+					    lp->left = lp->right = NULL;
+					    check1 = 0;
+					   check0 = 1; // prilikom unosa sledeceg pitanja, da zna da unosi u desno podstablo predhodnog na steku
 				}
 				else if( check1==0 && check0==1) {
 					check1 = 0;
 					check0 = 1;
 					rp = (struct node *)malloc(sizeof(struct node)); 
-					printf("Unesite odgovor: ");
+					printf("Input the answer: ");
 					while ((a = getchar()) == '\n');
 					if (a != '\n') { rp->info[0] = a; i = 1; }
 					else i = 0;
@@ -116,57 +143,62 @@ void play_the_game(Node** ROOT) {
 	Node *p,*q,*tmp, *new_answer;
 	char check[3]="",a,c;
 	int forward,i;
-	p = *ROOT;
-	q = NULL;
+	
+	   p = *ROOT;
+	   q = NULL;
 	printf("%s\n", p->info);
-	while ((a = getchar()) == '\n');
-	if (a != '\n') { check[0] = a; i = 1; }
-	else i = 0;
-	while ((a = getchar()) != '\n')
-		check[i++] = a;
-	    check[i] = '\0';
+       	while ((a = getchar()) == '\n');
+	         if (a != '\n') { check[0] = a; i = 1; }
+             	else i = 0;
+    	while ((a = getchar()) != '\n')
+	     	check[i++] = a;
+	      
+	        check[i] = '\0';
 		if (check[0] == 'd') forward = 1;
-		else forward = 0;
-	while (p->left != NULL) {
-		q = p;
-		if (forward) p = p->left;
-		else p = p->right;
+		     else forward = 0;
+	    while (p->left != NULL) {
+	     	q = p;
+	    	if (forward) p = p->left;
+	        	else p = p->right;
 		printf("%s\n", p->info);
-		while ((a = getchar()) == '\n');
-		if (a != '\n') { check[0] = a; i = 1; }
-		else i = 0;
+	   	while ((a = getchar()) == '\n');
+	     	if (a != '\n') { check[0] = a; i = 1; }
+		      else i = 0;
 		while ((a = getchar()) != '\n')
 			check[i++] = a;
-		check[i] = '\0';
+	    	check[i] = '\0';
 		if (check[0] == 'd') forward = 1;
-		else forward = 0;
+		   else forward = 0;
 	}
 	if (check[0] == 'd') 
-		printf("\n Kompjuter je pobedio...");
-	else {
-		printf("To imam u bazi podataka...\n");
-		printf("Unesite pitanje po kome cu razlikovati pojam od predjasnje ponudjenog:\n ");
+		 printf("\n I won this one.");
+    	else {
+		printf("I have nothing more to add. Sad to say, you won.\n");
+		
+		printf("Please make me rich, input a new question:\n ");
+		
 		tmp = (struct node *)malloc(sizeof(struct node));
-		if (p == q->left) q->left = tmp;
+		if (p == q->left)
+			q->left = tmp;
 		else q->right = tmp;
 		while ((a = getchar()) == '\n');
-		if (a != '\n') { tmp->info[0] = a; i = 1; }
-		else i = 0;
+		   if (a != '\n') { tmp->info[0] = a; i = 1; }
+		      else i = 0;
 		while ((a = getchar()) != '\n')
 		     tmp->info[i++] = a;
-		tmp->info[i] = '\0';
-		   printf("Unesite pojam na koji ste mislili: \n");
+		     tmp->info[i] = '\0';
+		   printf("What were you thinking on?  \n");
 		   new_answer = (struct node *)malloc(sizeof(struct node));
 		    while ((a = getchar()) == '\n');
 		if (a != '\n') { new_answer->info[0] = a; i = 1; }
 		else i = 0;
 		while ((a = getchar()) != '\n')
 			new_answer->info[i++] = a;
-		new_answer->info[i] = '\0';
-		new_answer->right = NULL;
-		new_answer->left = NULL;
-		tmp->left = new_answer;
-		tmp->right = p;
+	    	new_answer->info[i] = '\0';
+	    	new_answer->right = NULL;
+	    	new_answer->left = NULL;
+	    	tmp->left = new_answer;
+	    	tmp->right = p;
 	}
 }
 void termination(Node** ROOT) {
@@ -176,23 +208,128 @@ void termination(Node** ROOT) {
 	x = *ROOT;
 	while (1) {
 		if (x -> right != NULL)
-		PUSH(x->right, &stack, &top); // guram desni na stek;
-		lp = x;
-		x = x->left;
-		free(lp);
+		  PUSH(&x->right, &stack, &top); // guram desni na stek;
+		  lp = x;
+		  x = x->left;
+		  free(lp);
 		if (x == NULL)
 			x = POP(&stack, &top);
+		if (top == -1) {
+			free(x);
+			break;
+		}
 	}
+}
+int tree_height(Node ** ROOT){
+	int top = -1;
+	int lvl = -1;
+	int i=0,k,max=0;
+	int level_stack[MAX + 1];
+	Node *stack[MAX + 1];
+	Node *lp, *rp, *x;
+	x = *ROOT;
+	rp = (x)->right;
+	PUSH1(&rp , &stack, &top);
+	pushlvl(&level_stack, &lvl, i + 1);
+	while (1) {
+		if (x->right != NULL && x != *ROOT) {
+			PUSH1(x->right, &stack, &top);
+			pushlvl(&level_stack, &lvl, i+1);
+		}                                       // guram desni na stek;
+			
+		if (x->left != NULL) {
+			if (max < ++i) max = i;
+			x = x->left;
+		}
+            else {
+				x = POP(&stack, &top);
+				i = poplvl(&level_stack, &lvl);
+		    	}
+			if (top == -1)
+				break;
+	  }
+	return max;
 }
 main() {
 	Node *root_1 = NULL, *root_2 = NULL, *root_3 = NULL;
-	base_change(&root_1);
-	printf("\nGotov unos.");
-	printf("\nKrece igra...");
+	int ekstremum, izbor, another_izbor;
 	while (1) {
-		play_the_game(&root_1);
-		printf("\nKrece igra...");
-
+		printf("Animals / Plants / Objects ? \t");
+		printf("(1 / 2 / 3)\n");
+		scanf("%d", &izbor);
+		if (izbor == 1){
+			while (1) {
+				printf("\n1) Unos baze\n");
+				printf("2) Igraj igru\n");
+				printf("3) Visina\n");
+				printf("4)Izaberi drugu oblast ili napusti program\n");
+				scanf("%d", &another_izbor);
+				switch (another_izbor) {
+				case 1: base_change(&root_1);
+					break;
+				case 2:play_the_game(&root_1);
+					break;
+				case 3: printf("\n:%d ", tree_height(&root_1));
+					break;
+				}
+				if (another_izbor == 4) break;
+		}
+		}
+		else if (izbor == 2) {
+			while (1) {
+				printf("\n1) Unos baze\n");
+				printf("2) Igraj igru\n");
+				printf("3) Visina\n");
+				printf("4)Izaberi drugu oblast ili napusti program\n");
+				scanf("%d", &another_izbor);
+				switch (another_izbor) {
+				case 1: base_change(&root_2);
+					break;
+				case 2:play_the_game(&root_2);
+					break;
+				case 3: printf("\n %d ", tree_height(&root_2));
+					break;
+				}
+				if (another_izbor == 4) break;
+			}
+		}
+		else if (izbor == 3) {
+			while (1) {
+				printf("\n1) Unos baze\n");
+				printf("2) Igraj igru\n");
+				printf("3) Visina\n");
+				printf("4)Izaberi drugu oblast ili napusti program\n");
+				scanf("%d", &another_izbor);
+				switch (another_izbor) {
+				case 1: base_change(&root_3);
+					break;
+				case 2:play_the_game(&root_3);
+					break;
+				case 3: printf("\n %d ", tree_height(&root_3));
+					break;
+				}
+				if (another_izbor == 4) break;
+			}
+		}
+		printf("Press 1 to continue, 0 to exit\n");
+		scanf("%d", &izbor);
+		if (izbor==0) {
+			printf("Bye bye.");
+			break; }
 	}
-	char c = getchar();
+	termination(&root_1);
+	termination(&root_2);
+	termination(&root_3);
 }
+                                                                   //	base_change(&root_1);
+                                                                              //	printf("\nGotov unos.");
+                                                           //	printf("\nKrece igra...");
+                                                                //	ekstremum = tree_height(&root_1);
+                                                  //	printf("\n %d ", ekstremum);
+                       //	while (1) {
+	        //	play_the_game(&root_1);
+		//printf("\nKrece igra...");
+	//	break;
+              //	}
+                 	// termination(&root_1);
+	 // char c = getchar();
