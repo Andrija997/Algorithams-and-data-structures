@@ -1,0 +1,212 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <limits.h>
+#define TRUE 1
+#define FALSE 0
+#define CHECK(Type) if (Type == NULL) exit(1)
+
+typedef struct indices {
+	int next;
+	int weight;
+	int cost;
+}INDICES;
+
+
+typedef struct graph {
+	int *edges;
+	int n;
+	struct indices *indices;
+	int m;
+}GRAPH;
+
+typedef struct node {
+	int broj;
+	struct node *next;
+}NODE;
+
+GRAPH load();
+void path(GRAPH);
+int dijkstra(GRAPH, int**, int, int, int );
+
+main() {
+	GRAPH graf;
+	int choice;
+	printf("\nBiraj:\n");
+	printf("0)Unesi graf\n"
+		"1)Najkraci put\n"
+		"2)Unesi opet graf\n"
+		"3)Kraj\n");
+	while (1) {
+		printf("Izbor: ");
+		scanf("%d", &choice);
+		putchar('\n');
+		switch (choice) {
+		case 0: graf = load(); break;
+		case 1: path(graf);	break;
+		case 2: free(graf.edges); free(graf.indices); choice = 0; continue;
+		case 3: exit(0); break;
+		}
+	}
+}
+
+GRAPH load() {
+	GRAPH graf;
+	graf.edges = NULL;
+	graf.indices = NULL; 
+	int *extra_help;
+	struct indices *HELP;
+	printf("\nUnete broj cvorova i broj grana: ");
+	scanf("%d%d", &graf.n, &graf.m);
+	extra_help = realloc(graf.edges, (graf.n + 1) * sizeof(int));
+	CHECK(extra_help);
+	graf.edges = extra_help;
+	HELP = NULL;
+	HELP = realloc(graf.indices, (graf.m) * sizeof(struct indices)); //
+	CHECK(HELP); //
+	graf.indices = HELP;
+	int count, i, j, ukupno = 0;
+	for (i = 0; i < graf.n; i++) {
+		printf("Sada se unose grane za %d. cvor :\n", i);
+		printf("Unesi koliko grana zelis: ");
+		scanf("%d", &count);
+		printf("\nSada se unose sused, tezina i cena:");
+		graf.edges[i] = ukupno;
+		for (j = 0; j < count; j++) {
+			scanf("%d%d%d", &graf.indices[ukupno + j].next, &graf.indices[ukupno + j].weight, &graf.indices[ukupno + j].cost);
+		}
+		ukupno +=  count;
+	}
+	graf.edges[graf.n] = ukupno;
+	return graf;
+}
+
+void path(GRAPH graf) {
+	int coins,i;
+	int A, B;
+	int **put;
+	printf("Unesite broj novcica za koje biste putovali: ");
+	scanf("%d", &coins);
+	printf("Uneti cvor od kog se putuje i cvor do kog se putuje:  ");
+	scanf("%d%d", &A, &B);
+	put =(int**) malloc(coins*(sizeof(int*)));
+	for (i = 0; i < coins; i++) {
+		dijkstra(graf,&put[i],A ,B , i + 1);
+	}
+	int *niz = malloc(coins*sizeof(int)),*cene = malloc(coins*sizeof(int));
+	for (i = 0; i < coins;i++) {
+		int x = 0 ,j = 0,k,z=0,pomozi=0,catch;
+		if (put[i]) {
+			while (put[i][j] != B) {
+				for (k = graf.edges[put[i][j]]; k < graf.edges[put[i][j] + 1]; k++) {
+					if (graf.indices[k].next == put[i][j + 1]) break;
+				}
+				for (z = graf.edges[put[i][j]]; z < graf.edges[put[i][j] + 1]; z++) {
+					if (graf.indices[z].next == put[i][j+1]) break;
+				}
+				x += graf.indices[k].weight;
+				pomozi += graf.indices[z].cost;
+				j++;
+			}
+			niz[i] = x;
+			cene[i] = pomozi;
+		}
+		else {
+			niz[i] = INT_MAX;
+			cene[i] = INT_MAX;
+		}
+	}
+	int min = INT_MAX, min2=INT_MAX;
+	int catch,capture;
+	for (i = 0; i < coins; i++) 
+		if (min > niz[i]) { capture = i; min = niz[i]; }
+	if (min == INT_MAX) {
+		printf("Takav put ne postoji!\n"); return;
+	}
+	for (i = 0; i < coins; i++) {
+		if (min2 > cene[i] && min==niz[i]) {
+			catch = i;
+			min2 = cene[i];
+		}
+	}
+	int *x = put[catch];
+	int j = 0;
+	while (x[j] != B) {
+		printf("%d -> ", x[j]);
+		j++;
+	}
+	   printf(" %d ", B);
+	   printf("\ncena: %d duzina %d\n", min2, min);
+	   for (i = 0; i < coins; free(put[i++]));
+	   free(put);
+	   free(niz);
+	   free(cene);
+	   
+	   return;
+}
+
+dijkstra (GRAPH graf, int **p, int a, int b, int coins) {
+	
+	int i, j, k;
+
+	int *curr_distance, *curr_money_left, *visit, *path;
+
+	curr_distance = malloc(graf.n * sizeof(int));
+	curr_money_left = malloc(graf.n * sizeof(int));
+	visit = malloc(graf.n * sizeof(int));
+	path = malloc(graf.n * sizeof(int));
+	
+	for (i = 0; i < graf.n; i++) {
+		curr_distance[i] = INT_MAX;
+		curr_money_left[i] = INT_MIN;
+		visit[i] = FALSE;
+		path[i] = INT_MAX;
+	}
+	curr_distance[a] = 0;
+	curr_money_left[a] = coins;
+	path[a] = a;
+	while (visit[b] == FALSE) {
+		int min=INT_MAX,capture;
+		for (i = 0; i < graf.n; i++) 
+			if (visit[i] == FALSE) 
+				if (min > curr_distance[i]) {
+					capture = i;
+					min = curr_distance[i];
+				}
+			
+		if (min == INT_MAX) break;
+
+		visit[capture] = TRUE;
+		for (i = graf.edges[capture]; i < graf.edges[capture + 1]; i++) {
+			if (curr_money_left[capture] - graf.indices[i].cost >= 0) 
+				if (curr_distance[graf.indices[i].next] > curr_distance[capture] + graf.indices[i].weight) {
+					curr_distance[graf.indices[i].next] = curr_distance[capture] + graf.indices[i].weight;
+					curr_money_left[graf.indices[i].next] = curr_money_left[capture]-graf.indices[i].cost;
+					path[graf.indices[i].next] = capture;
+				}
+			}
+		}
+	if (visit[b] == FALSE) {
+		*p = NULL;
+		free(curr_distance);
+		free(curr_money_left);
+		free(path);
+		free(visit);
+		return;
+	}
+	int *stack = malloc(graf.n * sizeof(int)), top=0;
+	k = b;
+	stack[top++] = b;
+	while (k != a) {
+		k = path[k];
+		stack[top++] = k;
+	}
+	int *rekonstrukcija = malloc(top * sizeof(int));
+	for (i = 0; i<top ; i++) 
+		rekonstrukcija[i] = stack[top - i - 1];
+	
+	*p = rekonstrukcija;
+	free(curr_distance);
+	free(curr_money_left);
+	free(path);
+	free(visit);
+	}
